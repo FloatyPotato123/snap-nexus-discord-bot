@@ -89,6 +89,7 @@ async function extractCardsWithVisionAI(imageUrl) {
           { type: "image_url", image_url: { url: dataUrl } }
         ]
       }],
+      temperature: 0,
       max_tokens: 400,
     }),
     signal: AbortSignal.timeout(45000)
@@ -120,7 +121,7 @@ function matchCardsToDatabase(extractedNames) {
     let matchCandidates = cardDatabase.filter(c => c.name.toLowerCase() === clean.toLowerCase());
     if (matchCandidates.length === 0) {
       const results = fuzzball.extract(clean, ALL_CARD_NAMES, {
-        scorer: fuzzball.token_set_ratio
+        scorer: fuzzball.WRatio
       });
       if (results.length > 0 && results[0][1] > 70) {
         const matchedName = results[0][0];
