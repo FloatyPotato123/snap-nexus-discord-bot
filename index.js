@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 import { generateDeckcodeString, generateLongDeckcodeString } from "snapdeck";
-import stringSimilarity from "string-similarity";
+import * as fuzzball from "fuzzball";
 import dotenv from "dotenv";
 import http from "node:http";
 
@@ -29,7 +29,6 @@ const client = new Client({
 const UNTAPPED_CARDS_URL = "https://snapjson.untapped.gg/v2/latest/en/cards.json";
 let cardDatabase = [];
 let ALL_CARD_NAMES = [];
-let ALL_CARD_NAMES_LOWER = [];
 
 /**
  * Fetches the latest Marvel Snap card definitions from Untapped.gg
@@ -54,7 +53,6 @@ async function loadLiveCardsDatabase() {
     });
 
     ALL_CARD_NAMES = cardDatabase.map(c => c.name);
-    ALL_CARD_NAMES_LOWER = ALL_CARD_NAMES.map(n => n.toLowerCase());
     console.log(`✅ Loaded ${cardDatabase.length} cards.`);
   } catch (error) {
     console.error("❌ Database sync failed:", error.message);
@@ -121,9 +119,11 @@ function matchCardsToDatabase(extractedNames) {
 
     let matchCandidates = cardDatabase.filter(c => c.name.toLowerCase() === clean.toLowerCase());
     if (matchCandidates.length === 0) {
-      const bestMatch = stringSimilarity.findBestMatch(clean.toLowerCase(), ALL_CARD_NAMES_LOWER).bestMatch;
-      if (bestMatch.rating > 0.5) {
-        const matchedName = ALL_CARD_NAMES[ALL_CARD_NAMES_LOWER.indexOf(bestMatch.target)];
+      const results = fuzzball.extract(clean, ALL_CARD_NAMES, {
+        scorer: fuzzball.token_set_ratio
+      });
+      if (results.length > 0 && results[0][1] > 70) {
+        const matchedName = results[0][0];
         matchCandidates = cardDatabase.filter(c => c.name === matchedName);
       }
     }
