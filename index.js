@@ -268,9 +268,9 @@ async function extractCardsWithVisualSearch(imageUrl) {
   const cellWidth = origWidth / cols;
   const cellHeight = origHeight / rows;
 
-  // Crop padding (exclude GUI border elements, focus on artwork)
-  const padW = cellWidth * 0.15;
-  const padH = cellHeight * 0.20;
+  // Crop padding (exclude grid line borders, keep card frames and text)
+  const padW = cellWidth * 0.03;
+  const padH = cellHeight * 0.03;
   const subW = cellWidth - 2 * padW;
   const subH = cellHeight - 2 * padH;
 
