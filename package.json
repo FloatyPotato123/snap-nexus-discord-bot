@@ -12,6 +12,7 @@
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "fuzzball": "^2.2.6",
+    "sharp": "^0.35.1",
     "snapdeck": "^2.4.10",
     "string-similarity": "^4.0.4"
   }

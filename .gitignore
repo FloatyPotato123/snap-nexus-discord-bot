@@ -5,3 +5,12 @@ node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Local sync cache files
+known_variants.json
+vectorized_variants.json
+
+# Local debug files and crops
+*_debug.png
+debug_crops_*/
+
