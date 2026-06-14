@@ -1,3 +1,13 @@
+---
+title: Snap Nexus Bot
+emoji: 🤖
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # Snap Nexus Bot
 
 A specialized Discord bot for the Marvel Snap community that converts deck screenshots into copy-pasteable short codes in under 1.5 seconds. 
