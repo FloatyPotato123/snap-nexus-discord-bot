@@ -1,0 +1,52 @@
+name: Daily Variants Sync
+
+on:
+  schedule:
+    # Run daily at 05:00 UTC (12:00 AM midnight EST)
+    - cron: '0 5 * * *'
+  # Allow manual trigger from the GitHub Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run variants sync
+        env:
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_INDEX_URL: ${{ secrets.PINECONE_INDEX_URL }}
+          EMBEDDING_API_URL: ${{ secrets.EMBEDDING_API_URL }}
+        run: node sync_variants.js
+
+      - name: Commit and push cache updates
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Only stage the tracking cache files (force add since they are in .gitignore)
+          git add -f known_variants.json vectorized_variants.json
+          
+          # Check if there are changes to commit
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: auto-update variants cache [skip ci]"
+            git push
+            echo "✅ Successfully pushed cache updates to GitHub."
+          else
+            echo "ℹ️ No cache changes to commit."
+          fi
